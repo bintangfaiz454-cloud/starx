@@ -1,0 +1,30 @@
+{
+  "name": "starxtool",
+  "version": "4.0.0",
+  "description": "⭐ STARXTOOL V4 - Ultimate DDOS & Penetration Testing Tool ⭐ Powered by BINTANGTOOLS",
+  "main": "starx.js",
+  "bin": {
+    "starxtool": "./starx.js"
+  },
+  "scripts": {
+    "start": "node starx.js"
+  },
+  "keywords": [
+    "ddos",
+    "penetration-testing",
+    "cybersecurity",
+    "hacking",
+    "stress-test",
+    "bintangtools",
+    "starxtool"
+  ],
+  "author": "BINTANG",
+  "license": "MIT",
+  "dependencies": {
+    "gradient-string": "^2.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bintangfaiz454-cloud/starxtool.git"
+  }
+}
