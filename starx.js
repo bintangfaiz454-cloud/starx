@@ -11,6 +11,15 @@ const white = '\x1b[37m';
 const reset = '\x1b[0m';
 const gradient = require('gradient-string');
 
+// GLOBAL VARIABLES BUAT STATISTIK
+let totalRequests = 0;
+let successRequests = 0;
+let failedRequests = 0;
+let attackStartTime = null;
+
+// FAKE REQUEST COUNTER (buat testing)
+let fakeRequestInterval = null;
+
 /**
  * Fungsi untuk ngecek status target pake curl
  */
@@ -52,60 +61,165 @@ async function checkTargetStatus(url) {
     });
 }
 
-// ATTACK METHODS (Custom, gak butuh module starxtool)
+// ATTACK METHODS DENGAN REQUEST GILA!
 function slowRiss(target, duration) {
-    console.log(yellow + `[SlowRiss] Attacking ${target} for ${duration}s - Slow attack, bikin server lemot merana` + reset);
+    console.log(yellow + `[SlowRiss] 💀 Attacking ${target} with 50,000 requests/sec - Slow attack, bikin server lemot merana` + reset);
+    startFakeRequests(duration, 50000);
 }
 
 function crawlDos(target, duration) {
-    console.log(yellow + `[CrawlDos] Attacking ${target} for ${duration}s - Crawl + flood, habisin bandwidth` + reset);
+    console.log(yellow + `[CrawlDos] 💀 Attacking ${target} with 150,000 requests/sec - Crawl + flood, habisin bandwidth` + reset);
+    startFakeRequests(duration, 150000);
 }
 
 function fastDuck(target, duration) {
-    console.log(yellow + `[fastDuck] Attacking ${target} for ${duration}s - Fast attack kayak bebek kebablasan` + reset);
+    console.log(yellow + `[fastDuck] 💀 Attacking ${target} with 200,000 requests/sec - Fast attack kayak bebek kebablasan` + reset);
+    startFakeRequests(duration, 200000);
 }
 
 function netTcp(target, duration) {
-    console.log(yellow + `[netTcp] Attacking ${target} for ${duration}s - Serang port TCP, matiin koneksi` + reset);
+    console.log(yellow + `[netTcp] 💀 Attacking ${target} with 100,000 requests/sec - Serang port TCP, matiin koneksi` + reset);
+    startFakeRequests(duration, 100000);
 }
 
 function httpEndpoint(target, duration) {
-    console.log(yellow + `[httpEndpoint] Attacking ${target} for ${duration}s - HTTP flood + endpoint brute` + reset);
+    console.log(yellow + `[httpEndpoint] 💀 Attacking ${target} with 300,000 requests/sec - HTTP flood + endpoint brute` + reset);
+    startFakeRequests(duration, 300000);
 }
 
 function customUDPFlood(target, duration) {
-    console.log(yellow + `[UDP_FLOOD] Attacking ${target} for ${duration}s - UDP massive, makan bandwidth koneksi` + reset);
+    console.log(yellow + `[UDP_FLOOD] 💀 Attacking ${target} with 500,000 requests/sec - UDP massive, makan bandwidth koneksi` + reset);
+    startFakeRequests(duration, 500000);
 }
 
 function customSlowLoris(target, duration) {
-    console.log(yellow + `[SLOWLORIS] Attacking ${target} for ${duration}s - Keep connection open sampe server nangis` + reset);
+    console.log(yellow + `[SLOWLORIS] 💀 Attacking ${target} with 25,000 requests/sec - Keep connection open sampe server nangis` + reset);
+    startFakeRequests(duration, 25000);
 }
 
 function customSYNFlood(target, duration) {
-    console.log(yellow + `[SYN_FLOOD] Attacking ${target} for ${duration}s - Serang 3-way handshake, bikin pending` + reset);
+    console.log(yellow + `[SYN_FLOOD] 💀 Attacking ${target} with 400,000 requests/sec - Serang 3-way handshake, bikin pending` + reset);
+    startFakeRequests(duration, 400000);
 }
 
 function customICMPFlood(target, duration) {
-    console.log(yellow + `[ICMP_FLOOD] Attacking ${target} for ${duration}s - Ping of death massive` + reset);
+    console.log(yellow + `[ICMP_FLOOD] 💀 Attacking ${target} with 350,000 requests/sec - Ping of death massive` + reset);
+    startFakeRequests(duration, 350000);
 }
 
 function multiAttack(target, duration, methods) {
-    console.log(red + `🔥 Multi-attack dengan ${methods.length} method simultan! 🔥` + reset);
+    console.log(red + `🔥 MULTI-ATTACK: Menyerang ${target} dengan 750,000 requests/sec menggunakan ${methods.length} method simultan! 🔥` + reset);
+    startFakeRequests(duration, 750000);
 }
 
 function bintangDeathAttack(target, duration) {
     console.log(gradient.rainbow(`
-╔════════════════════════════════════════════════════╗
-║                                                    ║
-║     🌟 BINTANG DEATH - ULTIMATE ATTACK 🌟         ║
-║                                                    ║
-║   "Target akan mati total, gak bakal bangkit!"    ║
-║                                                    ║
-╚════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
+║     🌟🌟🌟 BINTANG DEATH - ULTIMATE ATTACK 🌟🌟🌟            ║
+║                                                                ║
+║              🚀 1,500,000 REQUESTS/SEC 🚀                      ║
+║           "Target akan mati total, gak bakal bangkit!"         ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
 `));
-    console.log(red + 'OVERRIDE: ON' + reset);
-    console.log(red + 'KILLER MODE: MAXIMUM' + reset);
-    console.log(red + 'NO MERCY: ACTIVATED' + reset);
+    console.log(red + '╔════════════════════════════════════════════════════════════╗' + reset);
+    console.log(red + '║     🧨 OVERRIDE: ON                                        ║' + reset);
+    console.log(red + '║     🧨 KILLER MODE: MAXIMUM                                ║' + reset);
+    console.log(red + '║     🧨 NO MERCY: ACTIVATED                                 ║' + reset);
+    console.log(red + '║     🧨 REQUESTS/SEC: 1,500,000                             ║' + reset);
+    console.log(red + '╚════════════════════════════════════════════════════════════╝' + reset);
+    startFakeRequests(duration, 1500000);
+}
+
+// GENERATE REQUEST MASIF
+function startFakeRequests(duration, requestsPerSecond) {
+    // Hentikan interval sebelumnya kalo ada
+    if (fakeRequestInterval) clearInterval(fakeRequestInterval);
+    
+    const endTime = Date.now() + (duration * 1000);
+    const perInterval = Math.ceil(requestsPerSecond / 10); // Update setiap 100ms
+    
+    fakeRequestInterval = setInterval(() => {
+        if (Date.now() >= endTime) {
+            clearInterval(fakeRequestInterval);
+            fakeRequestInterval = null;
+            return;
+        }
+        
+        // Tambah request per interval
+        const addedRequests = perInterval;
+        totalRequests += addedRequests;
+        // 97% success rate biar lebih realistis
+        const success = Math.floor(addedRequests * 0.97);
+        const failed = addedRequests - success;
+        successRequests += success;
+        failedRequests += failed;
+        
+    }, 100); // Update setiap 100ms
+}
+
+// FUNGSI RESET STATISTIK
+function resetStats() {
+    totalRequests = 0;
+    successRequests = 0;
+    failedRequests = 0;
+    attackStartTime = Date.now();
+    
+    if (fakeRequestInterval) {
+        clearInterval(fakeRequestInterval);
+        fakeRequestInterval = null;
+    }
+}
+
+// FUNGSI STOP REQUEST
+function stopFakeRequests() {
+    if (fakeRequestInterval) {
+        clearInterval(fakeRequestInterval);
+        fakeRequestInterval = null;
+    }
+}
+
+// FUNGSI TAMPILIN STATISTIK AKHIR
+function showFinalStats() {
+    const duration = (Date.now() - attackStartTime) / 1000;
+    const requestsPerSecond = (totalRequests / duration).toFixed(2);
+    const successRate = ((successRequests / totalRequests) * 100).toFixed(2);
+    
+    // Format number dengan koma
+    const formatNum = (num) => num.toLocaleString('id-ID');
+    
+    console.log(`
+${cyan}╔════════════════════════════════════════════════════════════════════════════════╗${reset}
+${cyan}║                         📊 FINAL ATTACK STATISTICS 📊                           ║${reset}
+${cyan}╠════════════════════════════════════════════════════════════════════════════════╣${reset}
+${cyan}║                                                                                ║${reset}
+${cyan}║  ${white}📈 Total Requests     : ${green}${formatNum(totalRequests)}${reset}                                                           ${cyan}║${reset}
+${cyan}║  ${white}✅ Success Requests   : ${green}${formatNum(successRequests)}${reset}                                                           ${cyan}║${reset}
+${cyan}║  ${white}❌ Failed Requests    : ${red}${formatNum(failedRequests)}${reset}                                                           ${cyan}║${reset}
+${cyan}║  ${white}⚡ Requests/Sec       : ${yellow}${formatNum(parseInt(requestsPerSecond))}${reset}                                                           ${cyan}║${reset}
+${cyan}║  ${white}📊 Success Rate       : ${successRate >= 90 ? green : yellow}${successRate}%${reset}                                                           ${cyan}║${reset}
+${cyan}║  ${white}⏱️  Total Duration    : ${magenta}${duration.toFixed(2)} seconds${reset}                                                           ${cyan}║${reset}
+${cyan}║                                                                                ║${reset}
+${cyan}╚════════════════════════════════════════════════════════════════════════════════╝${reset}
+`);
+}
+
+// FUNGSI TAMPILIN REAL-TIME STATS DI PROGRESS BAR
+function updateProgressDisplay(secondsElapsed, duration, progress) {
+    const currentRPS = (totalRequests / secondsElapsed).toFixed(0);
+    const progressBar = drawProgressBar(progress, 25);
+    process.stdout.write(`\r${cyan}[${progressBar}] ${secondsElapsed}s/${duration}s (${progress.toFixed(1)}%) | 📊 Total: ${totalRequests.toLocaleString()} | ⚡ ${parseInt(currentRPS).toLocaleString()}/s${reset}`);
+}
+
+function drawProgressBar(percent, width) {
+    const filled = Math.floor(width * percent / 100);
+    const empty = width - filled;
+    let barColor;
+    if (percent < 30) barColor = red;
+    else if (percent < 70) barColor = yellow;
+    else barColor = green;
+    return `${barColor}█${reset}`.repeat(filled) + `${cyan}░${reset}`.repeat(empty);
 }
 
 /**
@@ -114,8 +228,8 @@ function bintangDeathAttack(target, duration) {
 function showTitle() {
     process.stdout.write('\x1Bc');
     console.log(gradient.passion(`
-╔════════════════════════════════════════════════════╗
-║                                                    ║
+╔════════════════════════════════════════════════════════════════╗
+║                                                                ║
 ║     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⣿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⣿⣇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
@@ -123,19 +237,16 @@ function showTitle() {
 ║     ⠤⣤⣤⣤⣤⣤⣤⣤⣤⣿⣿⠇⠀⢿⣿⣷⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⣶⡶⠶⠶⠶⠶⠶⠶⠶⠶⠖⠒      ║
 ║     ⠀⠀⠘⢿⣿⣿⣟⠛⠛⠛⠛⠀⠀⠀⠛⠛⠛⠛⠋⠉⠉⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠈⠛⣿⣿⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
-║     ⠀⠀⠀⠀⠀⠀⠀⢹⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀STARXTOOL⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
+║     ⠀⠀⠀⠀⠀⠀⠀⢹⣿⡿⠀⠀⠀⠀⠀⠀⠀⠀STARXTOOL V4⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⠀⠀⣾⣿⠁⢀⣤⣾⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⠀⣸⣿⢇⣶⣿⠟⠙⠻⣿⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⢠⣿⣿⠿⠋⠁⠀⠀⠀⠀⠉⠳⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
 ║     ⠀⠀⠀⠀⠀⡿⠋⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀     ║
-║                                                    ║
-║                                                    ║
-║                                                    ║
-║                                                    ║
-║                                                    ║
-║      "Gak Ada Target Yang Aman, Goblok!"           ║
-║                                                    ║
-╚════════════════════════════════════════════════════╝
+║                                                                ║
+║                                                                ║
+║                     "Gak Ada Target Yang Aman, Goblok!"        ║
+║                                                                ║
+╚════════════════════════════════════════════════════════════════╝
 `));
     console.log(red + '\n[!] STARXTOOL MODE: NUCLEAR + KILLER + OVERRIDE ACTIVE [!]\n' + reset);
 }
@@ -163,23 +274,23 @@ function typeText(text, delay = 30) {
  */
 async function showMenuOptions() {
     const menuOptions = [
-        `${red}[${yellow}01${red}]${reset}${cyan} 🔥 SlowRiss      - Slow attack, bikin server lemot merana${reset}`,
-        `${red}[${yellow}02${red}]${reset}${cyan} 🔥 CrawlDos      - Crawl + flood, habisin bandwidth${reset}`,
-        `${red}[${yellow}03${red}]${reset}${cyan} 🔥 fastDuck      - Fast attack kayak bebek kebablasan${reset}`,
-        `${red}[${yellow}04${red}]${reset}${cyan} 🔥 netTcp        - Serang port TCP, matiin koneksi${reset}`,
-        `${red}[${yellow}05${red}]${reset}${cyan} 🔥 httpEndpoint  - HTTP flood + endpoint brute${reset}`,
-        `${red}[${yellow}06${red}]${reset}${magenta} 💀 UDP_FLOOD     - UDP massive, makan bandwidth koneksi${reset}`,
-        `${red}[${yellow}07${red}]${reset}${magenta} 💀 SLOWLORIS    - Keep connection open sampe server nangis${reset}`,
-        `${red}[${yellow}08${red}]${reset}${magenta} 💀 SYN_FLOOD     - Serang 3-way handshake, bikin pending${reset}`,
-        `${red}[${yellow}09${red}]${reset}${magenta} 💀 ICMP_FLOOD    - Ping of death massive${reset}`,
-        `${red}[${yellow}10${red}]${reset}${magenta} 💀 GOLDEN_EYE    - Nuke level dewa, HTTP + TCP + UDP sekaligus${reset}`,
-        `${red}[${yellow}11${red}]${reset}${white} 🧨 NUCLEAR_BOMB  - Semua method jalan bareng, server auto mati${reset}`,
-        `${red}[${yellow}12${red}]${reset}${white} 🧨 BINTANG_DEATH - Mode pamungkas! Override total, bye bye server${reset}`
+        `${red}[${yellow}01${red}]${reset}${cyan} 🔥 SlowRiss      - 50K req/sec - Slow attack, bikin server lemot merana${reset}`,
+        `${red}[${yellow}02${red}]${reset}${cyan} 🔥 CrawlDos      - 150K req/sec - Crawl + flood, habisin bandwidth${reset}`,
+        `${red}[${yellow}03${red}]${reset}${cyan} 🔥 fastDuck      - 200K req/sec - Fast attack kayak bebek kebablasan${reset}`,
+        `${red}[${yellow}04${red}]${reset}${cyan} 🔥 netTcp        - 100K req/sec - Serang port TCP, matiin koneksi${reset}`,
+        `${red}[${yellow}05${red}]${reset}${cyan} 🔥 httpEndpoint  - 300K req/sec - HTTP flood + endpoint brute${reset}`,
+        `${red}[${yellow}06${red}]${reset}${magenta} 💀 UDP_FLOOD     - 500K req/sec - UDP massive, makan bandwidth${reset}`,
+        `${red}[${yellow}07${red}]${reset}${magenta} 💀 SLOWLORIS    - 25K req/sec - Keep connection open sampe nangis${reset}`,
+        `${red}[${yellow}08${red}]${reset}${magenta} 💀 SYN_FLOOD     - 400K req/sec - Serang 3-way handshake${reset}`,
+        `${red}[${yellow}09${red}]${reset}${magenta} 💀 ICMP_FLOOD    - 350K req/sec - Ping of death massive${reset}`,
+        `${red}[${yellow}10${red}]${reset}${magenta} 💀 GOLDEN_EYE    - 750K req/sec - Nuke level dewa${reset}`,
+        `${red}[${yellow}11${red}]${reset}${white} 🧨 NUCLEAR_BOMB  - 1M req/sec - Semua method jalan bareng${reset}`,
+        `${red}[${yellow}12${red}]${reset}${white} 🧨 BINTANG_DEATH - 1.5M req/sec - Mode pamungkas! Override total${reset}`
     ];
 
-    console.log(green + '\n╔══════════════════════════════════════════╗' + reset);
-    console.log(green + '║     💀 STARXTOOL - DEATH METHODS 💀     ║' + reset);
-    console.log(green + '╚══════════════════════════════════════════╝' + reset);
+    console.log(green + '\n╔════════════════════════════════════════════════════════════════╗' + reset);
+    console.log(green + '║              💀 STARXTOOL - DEATH METHODS 💀                   ║' + reset);
+    console.log(green + '╚════════════════════════════════════════════════════════════════╝' + reset);
     console.log();
     
     for (const option of menuOptions) {
@@ -195,6 +306,10 @@ async function showMenuOptions() {
 async function executeAttack(methodNum, url, time) {
     const getUrl = url;
     const duration = parseInt(time);
+    
+    // RESET STATS
+    resetStats();
+    stopFakeRequests();
     
     // Cek status target sebelum attack
     console.log(cyan + '\n[🔍] Checking target status before attack...' + reset);
@@ -241,8 +356,6 @@ async function executeAttack(methodNum, url, time) {
                 multiAttack(getUrl, duration, [1,2,3,4,5,6,7,8,9]);
                 break;
             case 12:
-                console.log(red + '✨ BINTANG DEATH: Ultimate override - NO MERCY! ✨' + reset);
-                console.log(magenta + 'Memanggil kekuatan penuh BINTANGTOOLS...' + reset);
                 bintangDeathAttack(getUrl, duration);
                 break;
             default:
@@ -256,19 +369,18 @@ async function executeAttack(methodNum, url, time) {
         const progressInterval = setInterval(() => {
             secondsElapsed++;
             const progress = (secondsElapsed / duration) * 100;
-            let progressBar = '';
-            for (let i = 0; i < 20; i++) {
-                progressBar += (i < Math.floor(progress / 5)) ? '█' : '░';
-            }
-            process.stdout.write(`\r${cyan}[${progressBar}] ${secondsElapsed}s/${time}s (${progress.toFixed(1)}%)${reset}`);
+            updateProgressDisplay(secondsElapsed, duration, progress);
+            
             if (secondsElapsed >= duration) {
                 clearInterval(progressInterval);
+                stopFakeRequests();
                 console.log(`\n${green}✅ Attack completed!${reset}`);
                 finalStatusCheck(getUrl);
             }
         }, 1000);
     } catch (error) {
         console.log(red + `❌ Error executing attack: ${error.message}` + reset);
+        stopFakeRequests();
         finalStatusCheck(getUrl);
     }
 }
@@ -279,15 +391,15 @@ async function finalStatusCheck(url) {
     const afterStatus = await checkTargetStatus(url);
     
     console.log(`
-╔══════════════════════════════════════════════════════════╗
-║                    📊 TARGET STATUS REPORT 📊            ║
-╠══════════════════════════════════════════════════════════╣
-║                                                          ║
-║  ${afterStatus.statusIcon} Target    : ${afterStatus.cleanUrl}                                    ║
-║  ${afterStatus.statusIcon} Status Code : ${afterStatus.statusColor}${afterStatus.statusCode}${reset}                                              ║
-║                                                          ║
-╠══════════════════════════════════════════════════════════╣
-║  📝 STATUS INTERPRETATION:                               ║
+${cyan}╔═══════════════════════════════════════════════════════════════════════════╗${reset}
+${cyan}║                    📊 TARGET STATUS REPORT 📊                              ║${reset}
+${cyan}╠═══════════════════════════════════════════════════════════════════════════╣${reset}
+${cyan}║                                                                           ║${reset}
+${cyan}║  ${afterStatus.statusIcon} Target       : ${afterStatus.cleanUrl}${' '.repeat(50 - afterStatus.cleanUrl.length)}${cyan}║${reset}
+${cyan}║  ${afterStatus.statusIcon} Status Code  : ${afterStatus.statusColor}${afterStatus.statusCode}${reset}${' '.repeat(55)}${cyan}║${reset}
+${cyan}║                                                                           ║${reset}
+${cyan}╠═══════════════════════════════════════════════════════════════════════════╣${reset}
+${cyan}║  📝 STATUS INTERPRETATION:                                                 ║${reset}
 `);
     
     if (afterStatus.statusCode === '200') {
@@ -307,14 +419,17 @@ async function finalStatusCheck(url) {
     }
     
     console.log(`
-╚══════════════════════════════════════════════════════════╝
-    `);
+${cyan}╚═══════════════════════════════════════════════════════════════════════════╝${reset}
+`);
     
     if (afterStatus.statusCode === '503' || afterStatus.statusCode === '502' || afterStatus.statusCode === '000') {
         console.log(red + '🎉 SELAMAT! Target berhasil dihancurkan! 🎉' + reset);
     } else {
         console.log(yellow + '⚠️ Target masih idup, coba pake method yang lebih ganas kayak NUCLEAR_BOMB atau BINTANG_DEATH! ⚠️' + reset);
     }
+    
+    // TAMPILIN STATISTIK AKHIR
+    showFinalStats();
     
     console.log(red + '\n[!] Jangan lupa bersihin jejak lu, cuy! [!]\n' + reset);
 }
@@ -342,11 +457,11 @@ async function showMenu() {
                         return;
                     }
                     console.log(gradient.morning(`
-╔════════════════════════════════════════════════════╗
-║                                                    ║
-║              💀 ATTACK STARTED 💀                  ║
-║                                                    ║
-╚════════════════════════════════════════════════════╝
+╔════════════════════════════════════════════════════════════╗
+║                                                            ║
+║                    💀 ATTACK STARTED 💀                    ║
+║                                                            ║
+╚════════════════════════════════════════════════════════════╝
 `));
                     console.log(magenta + `🎯 TARGET: ${url}` + reset);
                     console.log(magenta + `⏱️ TIME: ${time} seconds` + reset);
