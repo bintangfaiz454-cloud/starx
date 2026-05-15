@@ -34,7 +34,7 @@
 
 ```bash
 # Clone repository
-git clone https://github.com/[USERNAME]/starxtool.git
+git clone https://github.com/bintangfaiz454-cloud/starx.git
 cd starxtool
 
 # Install dependencies
