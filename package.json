@@ -22,9 +22,5 @@
   "license": "MIT",
   "dependencies": {
     "gradient-string": "^2.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/bintangfaiz454-cloud/starxtool.git"
   }
 }
